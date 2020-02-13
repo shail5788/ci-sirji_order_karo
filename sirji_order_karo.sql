@@ -1,13 +1,15 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.2
--- http://www.phpmyadmin.net
+-- version 4.9.1
+-- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 13, 2020 at 03:03 PM
--- Server version: 5.7.9
--- PHP Version: 7.0.0
+-- Generation Time: Feb 13, 2020 at 08:49 PM
+-- Server version: 10.4.8-MariaDB
+-- PHP Version: 7.3.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -26,13 +28,11 @@ SET time_zone = "+00:00";
 -- Table structure for table `brand_tbl`
 --
 
-DROP TABLE IF EXISTS `brand_tbl`;
-CREATE TABLE IF NOT EXISTS `brand_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `brand_tbl` (
+  `id` int(11) NOT NULL,
   `brand_name` varchar(255) NOT NULL,
   `brand_slug` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -41,14 +41,11 @@ CREATE TABLE IF NOT EXISTS `brand_tbl` (
 -- Table structure for table `category_tbl`
 --
 
-DROP TABLE IF EXISTS `category_tbl`;
-CREATE TABLE IF NOT EXISTS `category_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `category_tbl` (
+  `id` int(11) NOT NULL,
   `category_name` varchar(100) NOT NULL,
   `brand_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `brand_id` (`brand_id`)
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -57,15 +54,11 @@ CREATE TABLE IF NOT EXISTS `category_tbl` (
 -- Table structure for table `dealer_destributor_tbl`
 --
 
-DROP TABLE IF EXISTS `dealer_destributor_tbl`;
-CREATE TABLE IF NOT EXISTS `dealer_destributor_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `dealer_destributor_tbl` (
+  `id` int(11) NOT NULL,
   `dist_id` int(11) NOT NULL,
   `dealer_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `dist_id` (`dist_id`,`dealer_id`),
-  KEY `dealer_id` (`dealer_id`)
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -74,9 +67,8 @@ CREATE TABLE IF NOT EXISTS `dealer_destributor_tbl` (
 -- Table structure for table `order_tbl`
 --
 
-DROP TABLE IF EXISTS `order_tbl`;
-CREATE TABLE IF NOT EXISTS `order_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `order_tbl` (
+  `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `product_id` int(11) NOT NULL,
   `qty` int(11) NOT NULL,
@@ -84,12 +76,21 @@ CREATE TABLE IF NOT EXISTS `order_tbl` (
   `discount` double NOT NULL,
   `total_amout` double NOT NULL,
   `order_no` bigint(20) NOT NULL,
-  `order_date` timestamp NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`,`product_id`),
-  KEY `order_no` (`order_no`),
-  KEY `order_tbl_ibfk_2` (`product_id`)
+  `order_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_images`
+--
+
+CREATE TABLE `product_images` (
+  `id` int(11) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -97,9 +98,8 @@ CREATE TABLE IF NOT EXISTS `order_tbl` (
 -- Table structure for table `product_tbl`
 --
 
-DROP TABLE IF EXISTS `product_tbl`;
-CREATE TABLE IF NOT EXISTS `product_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `product_tbl` (
+  `id` int(11) NOT NULL,
   `product_name` varchar(255) NOT NULL,
   `qty` int(11) NOT NULL,
   `unit_price` double NOT NULL,
@@ -107,12 +107,7 @@ CREATE TABLE IF NOT EXISTS `product_tbl` (
   `user_id` int(11) NOT NULL,
   `cate_id` int(11) NOT NULL,
   `sub_cate_id` int(11) NOT NULL,
-  `brand_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `cate_id` (`cate_id`),
-  KEY `sub_cate_id` (`sub_cate_id`),
-  KEY `brand_id` (`brand_id`)
+  `brand_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -121,15 +116,25 @@ CREATE TABLE IF NOT EXISTS `product_tbl` (
 -- Table structure for table `sub_category`
 --
 
-DROP TABLE IF EXISTS `sub_category`;
-CREATE TABLE IF NOT EXISTS `sub_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `sub_category` (
+  `id` int(11) NOT NULL,
   `sub_cate_name` varchar(100) NOT NULL,
   `cate_id` int(11) NOT NULL,
-  `created_at` timestamp NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `cate_id` (`cate_id`) USING BTREE
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tbl_otp`
+--
+
+CREATE TABLE `tbl_otp` (
+  `id` int(11) NOT NULL,
+  `otp_code` varchar(10) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `expire_in` time NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -137,34 +142,152 @@ CREATE TABLE IF NOT EXISTS `sub_category` (
 -- Table structure for table `user_tbl`
 --
 
-DROP TABLE IF EXISTS `user_tbl`;
-CREATE TABLE IF NOT EXISTS `user_tbl` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `user_tbl` (
+  `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `mobile_no` varchar(20) NOT NULL,
   `user_role` varchar(50) NOT NULL,
   `profile_pic` varchar(255) NOT NULL,
   `address` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user_tbl`
 --
 
 INSERT INTO `user_tbl` (`id`, `name`, `email`, `mobile_no`, `user_role`, `profile_pic`, `address`, `created_at`) VALUES
-(5, 'shailendra verma', 'shail5788@gmail.com', '7892374982', '1', 'default.png', '', '2020-02-13 13:47:37'),
-(6, 'shailendra verma', 'shail5788@gmail.com', '7892374982', '1', 'default.png', '', '2020-02-13 13:48:10'),
-(7, 'shailendra verma', 'shail5788@gmail.com', '78923749821', '1', 'default.png', '', '2020-02-13 13:57:01'),
-(8, 'shailendra verma', 'shail5788@gmail.com', '78923749820', '1', 'default.png', '', '2020-02-13 13:57:50'),
-(9, 'shailendra verma', 'shail5788@gmail.com', '78923749720', '1', 'default.png', '', '2020-02-13 14:02:32'),
-(10, 'shailendra verma', 'shail5788@gmail.com', '15345345', '1', 'default.png', '', '2020-02-13 14:03:00'),
-(11, 'shailendra verma', 'shail5788@gmail.com', '153453435', '1', 'default.png', '', '2020-02-13 14:03:16'),
-(12, 'shailendra verma', 'shail5788@gmail.com', '153453423435', '1', 'default.png', '', '2020-02-13 14:03:41'),
-(13, 'shailendra verma', 'shail5788@gmail.com', '15345234', '1', 'default.png', '', '2020-02-13 14:12:15'),
-(14, 'shailendra verma', 'shail5788@gmail.com', '15345224', '1', 'default.png', '', '2020-02-13 14:26:05');
+(23, 'shailendra verma', 'shail5788@gmail.com', '89343934', '1', 'default.png', '', '2020-02-13 19:45:08');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `brand_tbl`
+--
+ALTER TABLE `brand_tbl`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `category_tbl`
+--
+ALTER TABLE `category_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `brand_id` (`brand_id`);
+
+--
+-- Indexes for table `dealer_destributor_tbl`
+--
+ALTER TABLE `dealer_destributor_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `dist_id` (`dist_id`,`dealer_id`),
+  ADD KEY `dealer_id` (`dealer_id`);
+
+--
+-- Indexes for table `order_tbl`
+--
+ALTER TABLE `order_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`,`product_id`),
+  ADD KEY `order_no` (`order_no`),
+  ADD KEY `order_tbl_ibfk_2` (`product_id`);
+
+--
+-- Indexes for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_id` (`product_id`);
+
+--
+-- Indexes for table `product_tbl`
+--
+ALTER TABLE `product_tbl`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `cate_id` (`cate_id`),
+  ADD KEY `sub_cate_id` (`sub_cate_id`),
+  ADD KEY `brand_id` (`brand_id`);
+
+--
+-- Indexes for table `sub_category`
+--
+ALTER TABLE `sub_category`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `cate_id` (`cate_id`) USING BTREE;
+
+--
+-- Indexes for table `tbl_otp`
+--
+ALTER TABLE `tbl_otp`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `user_tbl`
+--
+ALTER TABLE `user_tbl`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `brand_tbl`
+--
+ALTER TABLE `brand_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `category_tbl`
+--
+ALTER TABLE `category_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `dealer_destributor_tbl`
+--
+ALTER TABLE `dealer_destributor_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `order_tbl`
+--
+ALTER TABLE `order_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `product_images`
+--
+ALTER TABLE `product_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `product_tbl`
+--
+ALTER TABLE `product_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `sub_category`
+--
+ALTER TABLE `sub_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `tbl_otp`
+--
+ALTER TABLE `tbl_otp`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `user_tbl`
+--
+ALTER TABLE `user_tbl`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- Constraints for dumped tables
@@ -191,6 +314,12 @@ ALTER TABLE `order_tbl`
   ADD CONSTRAINT `order_tbl_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product_tbl` (`id`);
 
 --
+-- Constraints for table `product_images`
+--
+ALTER TABLE `product_images`
+  ADD CONSTRAINT `product_images_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product_tbl` (`id`);
+
+--
 -- Constraints for table `product_tbl`
 --
 ALTER TABLE `product_tbl`
@@ -203,6 +332,13 @@ ALTER TABLE `product_tbl`
 --
 ALTER TABLE `sub_category`
   ADD CONSTRAINT `sub_category_ibfk_1` FOREIGN KEY (`cate_id`) REFERENCES `category_tbl` (`id`);
+
+--
+-- Constraints for table `tbl_otp`
+--
+ALTER TABLE `tbl_otp`
+  ADD CONSTRAINT `tbl_otp_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_tbl` (`id`);
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

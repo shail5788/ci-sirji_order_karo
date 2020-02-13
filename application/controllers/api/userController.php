@@ -14,7 +14,6 @@ class UserController extends API_Controller{
 	public function register(){
 		
 		header("Access-Control-Allow-Origin: *");
-		header('content-type:application/json; charset=UTF-8');
 		$this->_apiConfig([
 		  	"methods"=>['post']
 		]);
@@ -22,19 +21,40 @@ class UserController extends API_Controller{
 		$payload = json_decode($this->input->raw_input_stream, true);      
         $response=$this->User->user_register($payload);
         
-        if($response['user']){
-        	 $this->load->library('authorization_token');
-			 $token = $this->authorization_token->generateToken($response['user']);
-		}
+        if(isset($response['user'])){
+        	
+          $otp=$this->generate_otp($response['user'][0]['id']);
+          $status=$this->send_email($response['user'][0]['email'],$otp);
+	            if($status){
+	             	$this->api_return(
+		            [
+		                'status' => true,
+		                'result' =>$response['user'][0]['id'],
+		                "message"=>"please check you email to one time password"
+		                
+		            ],200);
+	             }else{
+	             	$this->api_return(
+			            [
+			                'status' => false,
+			                 "message"=>"some thing wrong"
+			                
+			            ],200);
+	             }
+	        }else{
+	        	$this->api_return(
+			            [
+			                'status' => false,
+			                'result' =>$response,
+			            ],200);
+	             }
+
+	            
+    //     	 $this->load->library('authorization_token');
+			 // $token = $this->authorization_token->generateToken($response['user']);
+		
       
-        $this->api_return(
-            [
-                'status' => true,
-                'result' =>$response,
-                "access_token"=>$token
-                
-            ],
-        200);
+        
 
 	}
 	public function login(){
@@ -89,9 +109,54 @@ class UserController extends API_Controller{
         200);   
 
 	}
-	public function generate_otp(){
+	public function generate_otp($user_id){
 
+		$otp=mt_rand(1000,5000);
+		$expire_time=strtotime("+30 minutes");
+		return [
+          "otp_code"=>$otp,
+          "expire_in"=>$expire_time,
+          "user_id"=>$user_id
+		];
 		
+	}
+	public function send_email($email,$data){
+
+		 $subject="Otp Verification";
+		 $from="codingss5788@gmail.com";
+		  $emailContent = '<!DOCTYPE><html><head></head><body><table width="600px" style="border:1px solid #cccccc;margin: auto;border-spacing:0;"><tr><td style="background:#000000;padding-left:3%"><img src="http://codingmantra.co.in/assets/logo/logo.png" width="300px" vspace=10 /></td></tr>';
+		    $emailContent .='<tr><td style="height:20px"></td></tr>';
+
+
+    $emailContent .= "Your One time password is here - ".$data['otp_code']."have been expired within 15 minutes";  //   Post message available here
+
+
+    $emailContent .='<tr><td style="height:20px"></td></tr>';
+    $emailContent .= "<tr><td style='background:#000000;color: #999999;padding: 2%;text-align: center;font-size: 13px;'><p style='margin-top:1px;'><a href='http://codingmantra.co.in/' target='_blank' style='text-decoration:none;color: #60d2ff;'>www.codingmantra.co.in</a></p></td></tr></table></body></html>";
+
+    	$config['protocol']    = 'smtp';
+    $config['smtp_host']    = 'ssl://smtp.gmail.com';
+    $config['smtp_port']    = '465';
+    $config['smtp_timeout'] = '60';
+
+    $config['smtp_user']    = 'codingss5788@gmail.com';    //Important
+    $config['smtp_pass']    = 'shail5788';  //Important
+
+    $config['charset']    = 'utf-8';
+    $config['newline']    = "\r\n";
+    $config['mailtype'] = 'html'; // or html
+    $config['validation'] = TRUE; // bool whether to validate email or not 
+
+     
+
+    $this->email->initialize($config);
+    $this->email->set_mailtype("html");
+    $this->email->from($from);
+    $this->email->to($email);
+    $this->email->subject($subject);
+    $this->email->message($emailContent);
+    $status=$this->email->send();
+ 	return $status;
 	}
 	
 }

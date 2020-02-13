@@ -19,17 +19,18 @@ class UserModel extends CI_model{
 	       	 	$newUser=$user->result_array();
 	       	 	$this->response['user']=$newUser;			   
 	       	 }else{
-	       	    $this->errors['status']=500;
-				$this->errors['error']="Something went wrong while insert";
-				$this->response['errors']=$errors;		
-	       	 }
+      	      $this->errors['status']=500;
+      				$this->errors['error']="Something went wrong while insert";
+      				$this->response['errors']=$errors;	
+           }
          }else{
-			$this->errors['status']=501;
-			$this->errors['error']="mobile no is already exist!";	     
-			$this->response['errors']=$errors;        
+    			$this->errors['status']=501;
+    			$this->errors['error']="mobile no is already exist!";	     
+    			$this->response['errors']=$this->errors; 
+            
          }
        	 
-         return $response;
+         return $this->response;
        }
        public function login($data){
             
@@ -66,6 +67,15 @@ class UserModel extends CI_model{
         return $response->result_array();                  
        }
        public function otp_generate($data){
-       	
+       	   
+           $res=$this->db->insert("tbl_otp",$data);
+           if($res){
+            $this->response['status']=200;
+            $this->response['message']="Otp has been genereted successfully";
+           }else{
+            $this->response['status']=500;
+            $this->response['errors']="internal server errors";
+           }
+           return $this->response;
        }
 }
