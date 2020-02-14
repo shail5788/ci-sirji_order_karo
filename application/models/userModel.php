@@ -52,23 +52,23 @@ class UserModel extends CI_model{
        }
        public function isExist($table,$mobile){
              
-        $response=$this->db->where(['mobile_no'=>$mobile])
-                           ->select("*")
-                           ->from($table)
-                           ->get();
-         return $response->result_array();                  
+            $response=$this->db->where(['mobile_no'=>$mobile])
+                               ->select("*")
+                               ->from($table)
+                               ->get();
+             return $response->result_array();                  
 
        }
        public function isEmpty($table){
                
-       $response=$this->db->select("*")
-                          ->from("tbl_users")
-                          ->get();
-        return $response->result_array();                  
+           $response=$this->db->select("*")
+                              ->from("tbl_users")
+                              ->get();
+            return $response->result_array();                  
        }
        public function otp_generate($data){
        	   
-           $res=$this->db->insert("tbl_otp",$data);
+           $res=$this->db->insert("otp_tbl",$data);
            if($res){
             $this->response['status']=200;
             $this->response['message']="Otp has been genereted successfully";
@@ -78,4 +78,36 @@ class UserModel extends CI_model{
            }
            return $this->response;
        }
+
+       public function otp_verification($otp,$user_id){
+           $response=$this->db->where(["otp_code"=>$otp,"user_id"=>$user_id])
+                              ->select("*")
+                              ->from("otp_tbl")
+                              ->get();
+           $result=$response->result_array();
+           if(!empty($result)){
+            return true;
+           }else{
+            return false;
+           }                       
+             
+       }
+       public function get_user($user_id){
+
+          $response=$this->db->where(['id'=>$user_id])
+                             ->select("*")
+                             ->from("user_tbl")
+                             ->get();
+          $result=$response->result_array();
+          return $result;                   
+       }
+       public function deleteOtp($user_id,$otp){
+         $this->db->query("DELETE from otp_tbl where otp_code=$otp");
+       }
+       public function get_all_user(){
+           $query = $this->db->get('user_tbl');
+           $result=$query->result_array();
+           return $result;
+       }
+
 }

@@ -58,3 +58,6 @@ $route['translate_uri_dashes'] = FALSE;
 $route['api/v1/user/register']="api/userController/register";
 $route['api/v1/user/login']="api/userController/login";
 $route['api/v1/user/get-user']="api/userController/get_user";
+$route['api/v1/user/get-all-user']="api/userController/get_users";
+$route['api/v1/user/send-otp']="api/userController/re_send_otp";
+$route['api/v1/user/otp-verfify']="api/userController/otpVerification";

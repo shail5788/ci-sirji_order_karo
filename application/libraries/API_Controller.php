@@ -60,6 +60,7 @@ class API_Controller extends CI_Controller
         '404' => 'NOT FOUND',
         '401' => 'UNAUTHORIZED',
         '200' => 'OK',
+        '500'=>'Internal server errors'
     ];
 
     /**
