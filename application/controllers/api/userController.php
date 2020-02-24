@@ -7,7 +7,7 @@ class UserController extends API_Controller{
 	public function __construct(){
 		
 		parent::__construct();
-		$this->load->model("UserModel",'User');
+		$this->load->model("user_model",'User');
 	
 	}
 	public function register(){
@@ -21,12 +21,14 @@ class UserController extends API_Controller{
         if(isset($response['user'])){
         	
 	          $otp=$this->generate_otp($response['user'][0]['id']);
-	          $status=$this->send_email($response['user'][0]['email'],$otp);
+	          $status=$this->send_otp($response['user'][0]['mobile_no'],$otp['otp_code'],$otp['expire_in']);
+	           
 	            if($status){
 	             	$this->api_return([
 		                'status' => true,
-		                'result' =>$response['user'][0]['id'],
-		                "message"=>"please check you email to one time password"
+
+		                'result' =>$status,
+		                "message"=>"Please check you registerd mobile not for OTP"
 		            ],200);
 	             }else{
 	             	$this->api_return(['status' => false,"message"=>"some thing wrong"],500);
@@ -48,7 +50,7 @@ class UserController extends API_Controller{
 	    $response=$this->User->login($payload);
          if($response['user']){
    			  $otp=$this->generate_otp($response['user'][0]['id']);
-	          $status=$this->send_email($response['user'][0]['email'],$otp);
+	          $status=$this->send_otp($response['user'][0]['email'],$otp);
 	          if($status){
 	          		$this->api_return(['status' => true,'result' =>$response['user'],"message"=>"Password has been send to your email"],200);
 	          }else{
@@ -88,48 +90,29 @@ class UserController extends API_Controller{
           "expire_in"=>$expire_time,
           "user_id"=>$user_id
 		];
-		$response=$this->User->otp_generate($data);
-		$data['status']=$response;
+		$resp=$this->User->otp_generate($data);
+		$data['status']=$resp;
 		return $data;
 
 	}
-	public function send_email($email,$data){
+	public function send_otp($mobile,$otp,$expire_time){
+        $message_string="your one time password is-".$otp."it will be expired after 15 minutes";
+        $message = urlencode($message_string);
+       
+	    $sender = 'SIRJIL'; 
+	    $token = 'b0246bf843b55528a998202e95994288';
+	    $route='1';
+	    $baseurl = 'http://msg.wemonde.com/api/sendSMS?token='.$apikey;
 
-		 $subject="Otp Verification";
-		 $from="codingss5788@gmail.com";
-		  $emailContent = '<!DOCTYPE><html><head></head><body><table width="600px" style="border:1px solid #cccccc;margin: auto;border-spacing:0;"><tr><td style="background:#000000;padding-left:3%"><img src="http://codingmantra.co.in/assets/logo/logo.png" width="300px" vspace=10 /></td></tr>';
-		    $emailContent .='<tr><td style="height:20px"></td></tr>';
+	    $url = $baseurl.'&token='.$token.'&senderid='.$sender.'&route='.$route.'&number='.$mobile.'&message='.$message;    
+	    $ch = curl_init();
+	    curl_setopt($ch, CURLOPT_POST, false);
+	    curl_setopt($ch, CURLOPT_URL, $url);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	    $response = curl_exec($ch);
+	    curl_close($ch);
+	    return $response;
 
-
-    $emailContent .= "Your One time password is here - ".$data['otp_code']."have been expired within 15 minutes";  //   Post message available here
-
-
-    $emailContent .='<tr><td style="height:20px"></td></tr>';
-    $emailContent .= "<tr><td style='background:#000000;color: #999999;padding: 2%;text-align: center;font-size: 13px;'><p style='margin-top:1px;'><a href='http://codingmantra.co.in/' target='_blank' style='text-decoration:none;color: #60d2ff;'>www.codingmantra.co.in</a></p></td></tr></table></body></html>";
-
-    	$config['protocol']    = 'smtp';
-    $config['smtp_host']    = 'ssl://smtp.gmail.com';
-    $config['smtp_port']    = '465';
-    $config['smtp_timeout'] = '60';
-
-    $config['smtp_user']    = 'codingss5788@gmail.com';    //Important
-    $config['smtp_pass']    = 'shail5788';  //Important
-
-    $config['charset']    = 'utf-8';
-    $config['newline']    = "\r\n";
-    $config['mailtype'] = 'html'; // or html
-    $config['validation'] = TRUE; // bool whether to validate email or not 
-
-     
-
-    $this->email->initialize($config);
-    $this->email->set_mailtype("html");
-    $this->email->from($from);
-    $this->email->to($email);
-    $this->email->subject($subject);
-    $this->email->message($emailContent);
-    $status=$this->email->send();
- 	return $status;
 	}
 	public function otpVerification(){
         

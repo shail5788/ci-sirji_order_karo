@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class UserModel extends CI_model{
+class User_model extends CI_model{
 
 	public $errors=[];
 	public $response=[];
