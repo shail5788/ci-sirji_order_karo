@@ -155,7 +155,8 @@ class UserController extends API_Controller{
 	    if($isNotExpired){
            $otp=$get_current_otp[0]['otp_code'];
 	    }else{
-	    	$otp=$this->generate_otp($user[0]['id']);
+	    	$otpdata=$this->generate_otp($user[0]['id']);
+	    	$otp=$otpdata[0]['otp_code'];
 	    }
 
 		
