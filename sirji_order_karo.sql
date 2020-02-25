@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 13, 2020 at 03:03 PM
+-- Generation Time: Feb 24, 2020 at 03:25 PM
 -- Server version: 5.7.9
 -- PHP Version: 7.0.0
 
@@ -94,6 +94,45 @@ CREATE TABLE IF NOT EXISTS `order_tbl` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `otp_tbl`
+--
+
+DROP TABLE IF EXISTS `otp_tbl`;
+CREATE TABLE IF NOT EXISTS `otp_tbl` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `otp_code` varchar(10) NOT NULL,
+  `expire_in` time NOT NULL,
+  `user_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `otp_tbl`
+--
+
+INSERT INTO `otp_tbl` (`id`, `otp_code`, `expire_in`, `user_id`) VALUES
+(4, '1940', '838:59:59', 18);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `product_images_tbl`
+--
+
+DROP TABLE IF EXISTS `product_images_tbl`;
+CREATE TABLE IF NOT EXISTS `product_images_tbl` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `image_path` varchar(255) NOT NULL,
+  `product_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `product_tbl`
 --
 
@@ -148,23 +187,15 @@ CREATE TABLE IF NOT EXISTS `user_tbl` (
   `address` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `user_tbl`
 --
 
 INSERT INTO `user_tbl` (`id`, `name`, `email`, `mobile_no`, `user_role`, `profile_pic`, `address`, `created_at`) VALUES
-(5, 'shailendra verma', 'shail5788@gmail.com', '7892374982', '1', 'default.png', '', '2020-02-13 13:47:37'),
-(6, 'shailendra verma', 'shail5788@gmail.com', '7892374982', '1', 'default.png', '', '2020-02-13 13:48:10'),
-(7, 'shailendra verma', 'shail5788@gmail.com', '78923749821', '1', 'default.png', '', '2020-02-13 13:57:01'),
-(8, 'shailendra verma', 'shail5788@gmail.com', '78923749820', '1', 'default.png', '', '2020-02-13 13:57:50'),
-(9, 'shailendra verma', 'shail5788@gmail.com', '78923749720', '1', 'default.png', '', '2020-02-13 14:02:32'),
-(10, 'shailendra verma', 'shail5788@gmail.com', '15345345', '1', 'default.png', '', '2020-02-13 14:03:00'),
-(11, 'shailendra verma', 'shail5788@gmail.com', '153453435', '1', 'default.png', '', '2020-02-13 14:03:16'),
-(12, 'shailendra verma', 'shail5788@gmail.com', '153453423435', '1', 'default.png', '', '2020-02-13 14:03:41'),
-(13, 'shailendra verma', 'shail5788@gmail.com', '15345234', '1', 'default.png', '', '2020-02-13 14:12:15'),
-(14, 'shailendra verma', 'shail5788@gmail.com', '15345224', '1', 'default.png', '', '2020-02-13 14:26:05');
+(17, 'shailendra verma', 'shail5788@gmail.com', '15345224', '1', 'default.png', '', '2020-02-14 11:27:48'),
+(18, 'shailendra singh', 'shail5788@outlook.com', '894389598', '1', 'default.png', '', '2020-02-14 15:04:06');
 
 --
 -- Constraints for dumped tables
@@ -191,12 +222,27 @@ ALTER TABLE `order_tbl`
   ADD CONSTRAINT `order_tbl_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product_tbl` (`id`);
 
 --
+-- Constraints for table `otp_tbl`
+--
+ALTER TABLE `otp_tbl`
+  ADD CONSTRAINT `otp_tbl_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_tbl` (`id`);
+
+--
+-- Constraints for table `product_images_tbl`
+--
+ALTER TABLE `product_images_tbl`
+  ADD CONSTRAINT `product_images_tbl_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `product_tbl` (`id`);
+
+--
 -- Constraints for table `product_tbl`
 --
 ALTER TABLE `product_tbl`
   ADD CONSTRAINT `product_tbl_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_tbl` (`id`),
   ADD CONSTRAINT `product_tbl_ibfk_2` FOREIGN KEY (`cate_id`) REFERENCES `category_tbl` (`id`),
-  ADD CONSTRAINT `product_tbl_ibfk_3` FOREIGN KEY (`brand_id`) REFERENCES `brand_tbl` (`id`);
+  ADD CONSTRAINT `product_tbl_ibfk_3` FOREIGN KEY (`brand_id`) REFERENCES `brand_tbl` (`id`),
+  ADD CONSTRAINT `product_tbl_ibfk_4` FOREIGN KEY (`sub_cate_id`) REFERENCES `sub_category` (`id`),
+  ADD CONSTRAINT `product_tbl_ibfk_5` FOREIGN KEY (`sub_cate_id`) REFERENCES `sub_category` (`id`),
+  ADD CONSTRAINT `product_tbl_ibfk_6` FOREIGN KEY (`sub_cate_id`) REFERENCES `sub_category` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `sub_category`

@@ -85,12 +85,32 @@ class User_model extends CI_model{
                               ->from("otp_tbl")
                               ->get();
            $result=$response->result_array();
-           if(!empty($result)){
+           $isNotExpired=$this->is_otp_expired($result[0]['created_at']);
+           // $generated_time=strtotime($result[0]['created_at']);
+           // date_default_timezone_set('Asia/Kolkata');
+           // $now=date("Y-m-d:h:m:s"); 
+           // $current_time =strtotime("now");
+           // $diff = abs($current_time - $generated_time);  
+           // $diff_time=$diff/60; 
+             
+           
+           if(!empty($result) && $isNotExpired){
             return true;
            }else{
             return false;
            }                       
              
+       }
+       public function get_otp($user_id){
+
+           $response=$this->db->where(["user_id"=>$user_id])
+                              ->select("*")
+                              ->from("otp_tbl")
+                              ->order_by('id','desc')
+                              ->get();
+           $result=$response->result_array();
+           return $result;
+
        }
        public function get_user($user_id){
 
@@ -109,5 +129,21 @@ class User_model extends CI_model{
            $result=$query->result_array();
            return $result;
        }
+
+       public function is_otp_expired($gen_time){
+           
+           $generated_time=strtotime($gen_time);
+           date_default_timezone_set('Asia/Kolkata');
+           $now=date("Y-m-d:h:m:s"); 
+           $current_time =strtotime("now");
+           $diff = abs($current_time - $generated_time);  
+           $diff_time=$diff/60; 
+           if($diff_time<=15){
+            return true;
+           }else{
+            return false;
+           }
+
+      }
 
 }
