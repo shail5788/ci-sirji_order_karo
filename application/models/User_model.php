@@ -45,7 +45,7 @@ class User_model extends CI_model{
             }else{
             	$this->errors['status']=501;
             	$this->errors['error']="Sorry! wrong mobile no is incorrect";
-                $this->response["errors"]=$this->errors;
+              $this->response["errors"]=$this->errors;
             } 
            return $this->response;                             
    
@@ -136,7 +136,7 @@ class User_model extends CI_model{
            date_default_timezone_set('Asia/Kolkata');
            $now=date("Y-m-d:h:m:s"); 
            $current_time =strtotime("now");
-           $diff = abs($current_time - $generated_time);  
+           $diff = abs($current_time - $gen_time);  
            $diff_time=$diff/60; 
            if($diff_time<=15){
             return true;

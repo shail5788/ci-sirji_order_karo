@@ -8,7 +8,7 @@ class UserController extends API_Controller{
 		
 		parent::__construct();
 		$this->load->model("user_model",'User');
-	
+		// $this->load->library('authorization_token');
 	}
 	public function register(){
 		
@@ -26,9 +26,7 @@ class UserController extends API_Controller{
 	            if($status){
 	             	$this->api_return([
 		                'status' => true,
-
-		                'result' =>$status,
-		                "message"=>"Please check you registerd mobile not for OTP"
+						'result' =>"Please check you registerd mobile not for OTP",
 		            ],200);
 	             }else{
 	             	$this->api_return(['status' => false,"message"=>"some thing wrong"],500);
@@ -49,10 +47,20 @@ class UserController extends API_Controller{
 	    $payload = json_decode($this->input->raw_input_stream, true);
 	    $response=$this->User->login($payload);
          if($response['user']){
-   			  $otp=$this->generate_otp($response['user'][0]['id']);
-	          $status=$this->send_otp($response['user'][0]['mobile_no'],$otp['otp_code'],$otp['expire_in']);
+
+         	  $get_current_otp =$this->User->get_otp($response['user'][0]['id']);
+	    	  $isNotExpired    =$this->User->is_otp_expired($get_current_otp[0]['created_at']);
+	    	  if(!empty($get_current_otp ) && $isNotExpired){
+	    	  	$otp=$get_current_otp[0]['otp_code'];
+	    	  }else{
+	    	  	$otp_data=$this->generate_otp($response['user'][0]['id']);
+	    	  	$otp=$otp_data['otp_code'];
+	    	  	$expire_in=$otp_data['expire_in'];
+	    	  }
+   			  
+	          $status=$this->send_otp($response['user'][0]['mobile_no'],$otp,$expire_in);
 	          if($status){
-	          		$this->api_return(['status' => true,'result' =>$response['user'],"message"=>"Password has been send to your email"],200);
+	          		$this->api_return(['status' => true,'result' =>"OTP has been sent to your mobile no"],200);
 	          }else{
 	          	$this->api_return(['status' => false,"message"=>"something in happend during mail send"],500);
 	          }
@@ -83,12 +91,16 @@ class UserController extends API_Controller{
 	}
 	public function generate_otp($user_id){
 
-		$otp=mt_rand(1000,5000);
-		
+
+		   $otp=mt_rand(1000,5000);
+		   date_default_timezone_set('Asia/Kolkata');
+           $now=date("Y-m-d:h:m:s"); 
+           $current_time =strtotime("now");
 		$data= [
           "otp_code"=>$otp,
-          "expire_in"=>"5min",
-          "user_id"=>$user_id
+          "expire_in"=>'15min',
+          "user_id"=>$user_id,
+          "created_at"=>$current_time
 		];
 		$resp=$this->User->otp_generate($data);
 		$data['status']=$resp;
@@ -112,7 +124,11 @@ class UserController extends API_Controller{
 	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	    $response = curl_exec($ch);
 	    curl_close($ch);
-	    return $response;	
+	    if($response){
+	    	return true;
+	    }else{
+	    	return false;
+	    }
 
 	}
 	public function otpVerification(){
@@ -124,10 +140,10 @@ class UserController extends API_Controller{
 		$user_id=$payload['user_id'];
 		
 		$response=$this->User->otp_verification($opt,$user_id);
-		// $this->api_return(['status' => true,'result' =>$access_token,"verification"=>$response], 200); 
-            if($response){
+		
+          if($response){
             	$access_token=$this->get_access_token($user_id,$opt);
-            	 $this->api_return(['status' => true,'result' =>$access_token,"verification"=>$response], 200); 
+            	 $this->api_return(['status' => true,'result' =>$access_token], 200); 
             }else{
             	$this->api_return(['status' => false,'res'=>$response,'result' =>"Otp Either used or expired"], 400); 
             } 
@@ -138,7 +154,7 @@ class UserController extends API_Controller{
 	public function get_access_token($user_id,$otp){
 
          $user=$this->User->get_user($user_id);
-		 $this->load->library('authorization_token');
+		 $this->load->library('Authorization_Token');
 	     $token = $this->authorization_token->generateToken($user);
 	     $response['user']=$user;
 	     $response['token']=$token;
