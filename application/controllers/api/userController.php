@@ -57,10 +57,12 @@ class UserController extends API_Controller{
 	    	  	$otp=$otp_data['otp_code'];
 	    	  	$expire_in=$otp_data['expire_in'];
 	    	  }
+	    	  $dataset['id']=$response['user'][0]['id'];
+	    	  $dataset['mobile']=$response['user'][0]['mobile_no'];
    			  
 	          $status=$this->send_otp($response['user'][0]['mobile_no'],$otp,$expire_in);
 	          if($status){
-	          		$this->api_return(['status' => true,'result' =>"OTP has been sent to your mobile no"],200);
+	          		$this->api_return(['status' => true,'result' =>$dataset,"message"=>"OTP has been sent to your mobile no"],200);
 	          }else{
 	          	$this->api_return(['status' => false,"message"=>"something in happend during mail send"],500);
 	          }
@@ -162,7 +164,7 @@ class UserController extends API_Controller{
 		 return $response;
 	}
 	public function re_send_otp(){
-		
+		$this->_apiConfig(["methods"=>['POST']]);
 		$payload = json_decode($this->input->raw_input_stream, true);
 		$mobile=$payload['mobile'];  
 		$user=$this->User->isExist("user_tbl",$mobile); 
@@ -182,7 +184,7 @@ class UserController extends API_Controller{
 	    if($status){
 	    	$this->api_return([
 		                'status' => true,
-		                "message"=>"please check you email for one time password"
+		                "message"=>"Otp has been re-sent on your registered mobile no"
 		            ],200);
 	    }else{
 	       $this->api_return(['status' => false,"message"=>"some thing wrong"],500);

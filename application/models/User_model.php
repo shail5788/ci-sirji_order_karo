@@ -34,7 +34,7 @@ class User_model extends CI_model{
        }
        public function login($data){
             
-            $user=$this->db->where(['mobile_no'=>$data['mobile_no']])
+            $user=$this->db->where(['mobile_no'=>$data['mobile_no'],"user_status"=>true])
                             ->select("*")
                             ->from("user_tbl")
                             ->get();
@@ -44,7 +44,7 @@ class User_model extends CI_model{
                $this->response['user']=$users;         	
             }else{
             	$this->errors['status']=501;
-            	$this->errors['error']="Sorry! wrong mobile no is incorrect";
+            	$this->errors['error']="Sorry! Either mobile no is incorrect or you has been deactived";
               $this->response["errors"]=$this->errors;
             } 
            return $this->response;                             

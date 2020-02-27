@@ -61,9 +61,20 @@ $route['translate_uri_dashes'] = FALSE;
 // $route['api/v1/user/get-all-user']="api/userController/get_users";
 // $route['api/v1/user/send-otp']="api/userController/re_send_otp";
 // $route['api/v1/user/otp-verfify']="api/userController/otpVerification";
+
 $route['v1/user/register']="api/userController/register";
 $route['v1/user/login']="api/userController/login";
 $route['v1/user/get-user']="api/userController/get_user";
 $route['v1/user/get-all-user']="api/userController/get_users";
 $route['v1/user/send-otp']="api/userController/re_send_otp";
 $route['v1/user/otp-verfify']="api/userController/otpVerification";
+// Brand Routes 
+$route['v1/brand']="api/BrandController/create_brand";
+$route['v1/brand/(:any)']="api/BrandController/get_brand";
+$route['v1/brands/(:any)']="api/BrandController/get_all_brand";
+
+// Category Route 
+$route['v1/category']="api/CategoryController/create_category";
+$route['v1/category/(:any)']="api/CategoryController/get_category";
+$route['v1/categories/(:any)']="api/CategoryController/get_all_category";
+
